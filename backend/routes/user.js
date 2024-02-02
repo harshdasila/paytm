@@ -13,6 +13,28 @@ const userSchema = zod.object({
     password: zod.string(),
 })
 
+router.get('/me',authMiddleware,async(req,res)=>{
+    const userID = req.userID;
+    if(!userID){
+        return res.status(403).json({
+            mssg: "user not logged in"
+        })
+    }
+    const userDetails = await User.findOne({_id:userID});
+    const accountDetails = await Account.findOne({userID: userID});
+
+    res.json({
+        user: {
+            firstName: userDetails.firstName,
+            lastName: userDetails.lastName,
+            email: userDetails.email
+        },
+        account:{
+            balance: accountDetails.balance
+        }
+    })
+})
+
 router.post('/signup' ,async(req,res)=>{
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
